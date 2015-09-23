@@ -1,0 +1,7 @@
+#!/bin/bash
+length=`mplayer $1 -identify -frames 0 -ao null -vo null \
+          -ac null -vc null 2>&1|grep ID_LENGTH|tail -c +11|head -c -4`
+bitrate=$(( ( 175 * 8192 - 128 * $length ) / $length ))
+vidsize=$(( 175 * 1024 - 16 * $length ))
+
+echo -e "${length}s\n${bitrate}kbps\n${vidsize}KiB\n$((vidsize/1024))MiB"

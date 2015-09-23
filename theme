@@ -1,0 +1,79 @@
+#!/bin/bash
+# www.xeron.cc
+# Version 4! Major rewrites to the entire script.
+#
+# Please make sure the theme name you have in your RC file is the same as one
+# of the ones in your $theme_path. Otherwise the script has no way of finding
+# the correct line to change in your rc.xml. It searchs for <name>$theme</name>
+# so if you have more then one line in your rc.xml that matches that for some
+# reason then you may have problems. BACK UP YOUR RC.XML BEFORE TRYING THIS. If
+# you misconfigure something, it COULD screw up your rc.xml, though I doubt it
+#  will. I've tried putting as much fail safe into this as possible, and it
+# works quite well if you've configured everything properly.
+
+theme_path="/usr/share/themes/:$HOME/.local/share/themes/"
+rc_path="$HOME/.config/openbox/rc.vnc.xml"
+script_path=`realpath $0`
+binname="openbox"
+#========== END USER VARIABLES =============
+
+IFS=:
+themes=`find $theme_path -name openbox-3 -printf '%h\n'|while read x;do basename "$x";done|sort -f`
+IFS=$'\n'
+
+rcfind() {
+  for rc in $themes; do
+    grep -q "<name>$rc</name>" "$rc_path" && break
+    unset rc
+  done
+}
+
+case "$1" in
+menu)
+  rcfind
+  echo "<openbox_pipe_menu>"
+  for item in $themes; do
+    if [ "$item" == "$rc" ]; then
+      label="&lt;-$item"
+    else
+      label="$item"
+    fi
+    echo "  <item label=\"$label\">"
+    echo "    <action name=\"execute\"><execute>$script_path apply \"$item\"</execute></action>"
+    echo "  </item>"
+  done
+  echo "</openbox_pipe_menu>"
+;;
+apply)
+  if [ ! "$2" ]; then
+    echo "ERROR: No theme name specified."
+    exit 1
+  fi
+
+  rcfind
+
+  if [ ! "$rc" ]; then
+    echo "Couldn't find theme in RC file. Check theme path. If necessary, manually change theme to one in your theme path"
+    exit 1
+  fi
+
+  for theme in $themes; do
+    if [ "$2" == "$theme" ]; then
+      sed -i s:"<name>$rc</name>":"<name>$theme</name>": "$rc_path" 2> /dev/null
+      foundtheme=1
+      break
+    fi
+  done
+
+  if [ ! $foundtheme ]; then
+    echo "Theme not found. Check your theme path and try again"
+    exit 1
+  fi
+
+  killall -USR2 "$binname"
+;;
+*)
+  echo "Usage: {menu|apply [theme]}"
+  echo "Theme list:" $themes
+;;
+esac

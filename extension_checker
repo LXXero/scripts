@@ -1,0 +1,41 @@
+#!/bin/bash
+
+IFS=$'\n'
+
+for file in `realpath -- $@`; do
+  [ -f $file ] || continue
+
+  case `file -bi $file` in
+    video/x-msvideo) EXT="avi" ;;
+    video/mpeg) EXT="mpg" ;;
+    video/mpv) EXT="mpg" ;;
+    image/jpeg) EXT="jpg" ;;
+    application/vnd.rn-realmedia) EXT="rm" ;;
+    video/mp4) EXT="mp4" ;;
+    video/quicktime) EXT="qt" ;;
+    application/x-zip) EXT="zip" ;;
+  *)  case `file -b $file|cut -c -4` in
+        RIFF) EXT="avi" ;;
+        Micr) EXT="asf" ;;
+	*)
+           echo -e "`basename $file` has unknown format `file -b $file`\n--\n"
+           continue
+	;;
+      esac
+  ;;
+  esac
+
+  if [ "`echo $file|sed "s/^.*\.\(.*$\)/\1/"`" != "$EXT" ]; then
+    echo "`basename $file` extension does not match format type $EXT"
+    fixed=`echo $file|sed "s/\(^.*\.\).*$/\1$EXT/"`
+    read -p "Rename to `basename $fixed`? " rename < /dev/tty 
+
+    if [ -z "$rename" -o "$rename" = "y" -o "$rename" = "yes" ]; then
+      mv -i "$file" "$fixed"
+    else
+      echo "Not renaming."
+    fi
+    echo -e "--\n"
+  fi
+
+done

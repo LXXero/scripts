@@ -1,0 +1,9 @@
+#!/bin/bash
+count=0
+while [ $count -le 6 ]; do
+echo "===== mixer $count ======"
+cat /proc/asound/card0/pcm0p/sub$count/hw_params
+echo
+count=$(($count + 2))
+done
+

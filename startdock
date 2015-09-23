@@ -1,0 +1,27 @@
+#!/bin/sh
+
+
+if [ "x${VNCDESKTOP}" == "x" ]; then
+  openbox --replace &
+  feh --no-xinerama --bg-fill /home/xero/media/pictures/backgrounds/smokey-blue-grace.jpg
+
+  while ! pulseaudio --check; do 
+    sleep 0.5
+  done
+else
+  openbox --replace --config-file /home/xero/.config/openbox/rc.vnc.xml &
+  xsetroot -solid black
+fi
+
+
+while killall -q -18 -u $USER -y1s openbox; do
+  sleep 0.5
+done
+
+gkrellm -w &
+
+while killall -q -18 -u $USER -y2s gkrellm; do
+  sleep 0.5
+done
+
+stalonetray &

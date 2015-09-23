@@ -1,0 +1,105 @@
+#!/bin/bash
+# www.xeron.cc
+# Version 7! Well, implemented a one liner basename sort function so it's now
+# sorted alphabetically according to only the file name not the path. Yay, been
+# wanting to do that for a while.
+# Version 6! Now uses source to read variables from settings file instead of
+# grepping it out. Also, redid file finding and also fixed indention up a bit.
+
+#========== VARIABLES =================
+# Use $HOME or absolute path instead of ~. Seperate paths with a colon.
+BG_PATH="$HOME/media/pictures/backgrounds:$HOME/media/pictures/backgrounds/gnometris:$HOME/media/pictures/screentest"
+EXTS="jpg png bmp gif jpeg"
+SCRIPT_PATH="$HOME/misc/scripts/bg"
+SETTINGS_FILE="$HOME/.bgconf"
+# These are settings for the BG_COMMAND. Set them appropriately.
+
+## bsetbg commands
+#BG_COMMAND="bsetbg"
+#CENTER="-center"
+#TILE="-tile"
+#FULL="-full"
+
+## display from image magick commands
+#BG_COMMAND="display -window root"
+#CENTER="-backdrop"
+#TILE=""
+#FULL="-geometry 1600x1200"
+
+# GNOME 2 Commands
+BG_COMMAND="gconftool-2 -s /desktop/gnome/background/picture_options -t string '' -s /desktop/gnome/background/picture_options -t string"
+CENTER="centered -s /desktop/gnome/background/picture_filename -t string"
+TILE="wallpaper -s /desktop/gnome/background/picture_filename -t string"
+FULL="stretched -s /desktop/gnome/background/picture_filename -t string"
+#========== END USER VARIABLES =============
+
+if [ ! -f "$SETTINGS_FILE" ]; then
+  echo -e "mode=\"center\"\nbg=\"\"" > $SETTINGS_FILE
+fi
+
+source $SETTINGS_FILE
+
+case $1 in
+menu)
+  BGS=`for EXT in $EXTS; do
+         IFS=:
+         find $BG_PATH -maxdepth 1 -iname \*.$EXT | sed s:"&":"&amp;":g
+       done | awk -F/ '{print $NF"/"$0}'|sort -ft / -k 1,1| cut -d/ -f2-`
+  echo "<openbox_pipe_menu>"
+  IFS=$'\n'
+  for ITEM in $BGS;do
+    if [ "$ITEM" = "${bg//&/&amp;}" ]; then
+      LABEL="&lt;-`basename "$ITEM"`"
+    else
+      LABEL=`basename "$ITEM"`
+    fi
+    echo "  <item label=\"$LABEL\">"
+    # Tilde Hack, replace with unlikely string.
+    echo "    <action name=\"execute\"><execute>$SCRIPT_PATH apply \"${ITEM//\~/NmTiLD3mN}\"</execute></action>"
+    echo "  </item>"
+  done
+  echo "  <separator />"
+  for MODE in center tile full; do
+    echo "  <item label=\"$MODE\">"
+    echo "    <action name=\"execute\"><execute>$SCRIPT_PATH mode $MODE</execute></action>"
+    echo "  </item>"
+  done
+  echo "</openbox_pipe_menu>"
+;;
+apply)
+  if [ -z $2 ]; then
+    echo "Must specify filename"
+    exit 1
+  fi
+  # decode tilde string and make & work with sed.
+  bgvar="${2//NmTiLD3mN/\~}"
+  sed -i s:^bg=\".*\"$:bg=\""${bgvar//&/\\&}"\": $SETTINGS_FILE
+  $0 load
+;;
+load)
+  case $mode in
+  tile) nmode="$TILE" ;;
+  full) nmode="$FULL" ;;
+  *) nmode="$CENTER" ;;
+  esac
+
+  $BG_COMMAND $nmode "$bg"
+;;
+mode)
+  case $2 in
+  tile) nmode="tile" ;;
+  full) nmode="full" ;;
+  *) nmode="center" ;;
+  esac
+
+  sed -i s:^mode=\"$mode\"$:mode=\"$nmode\": $SETTINGS_FILE
+  $0 load
+;;
+*)
+  echo "Usage: `basename $0` command [parameter]"
+  echo "  menu				display openbox menu"
+  echo "  load				load saved settings"
+  echo "  apply [file]			applies background"
+  echo "  mode {center|tile|full}	background position"
+;;
+esac

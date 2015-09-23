@@ -1,0 +1,17 @@
+#!/bin/bash
+for x; do
+  if [ "$x" = "-m" ]; then
+    dest=`echo " $*"| sed "s/.*-m\(.*\)/\1/"`
+    break
+  else
+    args="$args $x"
+  fi
+done
+
+if [ -z "$dest" ]; then
+  cp $args
+else
+  for x in $dest; do
+    cp $args $x
+  done
+fi

@@ -1,0 +1,14 @@
+#!/bin/bash
+rom_path="$HOME/media/roms/snes"
+ext='smc'
+roms=`find $rom_path -iname \*.$ext|sed 's:&:&amp;:g'|sort`
+IFS=$'\n'
+
+echo "<openbox_pipe_menu>"
+for item in $roms; do
+  label=`basename $item|sed -e "s:.$ext::" -e 's:_: :g'`
+  echo "  <item label=\"$label\">"
+  echo "    <action name=\"execute\"><execute>zsnes \"$item\"</execute></action>"
+  echo "  </item>"
+done
+echo "</openbox_pipe_menu>"
