@@ -4,17 +4,17 @@ import xmltodict
 import time
 
 
-skip = ['Salt', 'Email2Alm_I9']
+skip = ['Email2Alm_I9']
 while True:
   try:
-    r = requests.get('http://xapex.x/cgi-bin/status.xml', timeout=2)
+    r = requests.get('http://xapexcube.x/cgi-bin/status.xml', timeout=2)
   except:
     print("timeout")
     time.sleep(8)
     continue
 
   d = xmltodict.parse(r.text, namespaces=True)
-  with open('/home/xero/misc/documents/apex', 'r+') as out:
+  with open('/home/xero/misc/documents/apexcube.txt', 'r+') as out:
     line ='Current Apex Status:\n'+d['status']['date']
     print(line)
     out.write(line+'\n')
