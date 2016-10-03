@@ -102,9 +102,9 @@ def timeralive():
 
 def cmdinput():
   while True:
-    print("timer is %s" % timer)
+    #print("timer is %s" % timer)
     input_cmd = input("Enter Command: ")
-    print ("Command Received " + input_cmd)
+    #print ("Command Received " + input_cmd)
     if input_cmd == 'next':
       stoptimer()
     if input_cmd == 'scene1':
@@ -121,42 +121,42 @@ def cmdinput():
       scene6()
 
 def scene1():
-    pyautogui.hotkey('ctrl', 'alt', 'shift', '1', interval=0.030)
+    pyautogui.hotkey('ctrl', 'alt', 'shift', '1', interval=0.25)
     stoptimer()
     global timer
     timer = count_down('Scene: Cichlid Tank (', 40)
     timer.start()
 
 def scene2():
-    pyautogui.hotkey('ctrl', 'alt', 'shift', '2', interval=0.030)
+    pyautogui.hotkey('ctrl', 'alt', 'shift', '2', interval=0.25)
     stoptimer()
     global timer
     timer = count_down('Scene: Cichlid Tank Fullscreen (', 20)
     timer.start()
 
 def scene3():
-    pyautogui.hotkey('ctrl', 'alt', 'shift', '3', interval=0.030)
+    pyautogui.hotkey('ctrl', 'alt', 'shift', '3', interval=0.25)
     stoptimer()
     global timer
     timer = count_down('Scene: Salt Tank (', 40)
     timer.start()
 
 def scene4(): 
-    pyautogui.hotkey('ctrl', 'alt', 'shift', '5', interval=0.030)
+    pyautogui.hotkey('ctrl', 'alt', 'shift', '5', interval=0.25)
     stoptimer()
     global timer
     timer = count_down('Scene: Salt Tank Fullscreen (', 20)
     timer.start()
 
 def scene5():
-    pyautogui.hotkey('ctrl', 'alt', 'shift', '4', interval=0.030)
+    pyautogui.hotkey('ctrl', 'alt', 'shift', '4', interval=0.25)
     stoptimer()
     global timer
     timer = count_down('Scene: Dual View (')
     timer.start()
 
 def scene6():
-    pyautogui.hotkey('ctrl', 'alt', 'shift', '6', interval=0.030)
+    pyautogui.hotkey('ctrl', 'alt', 'shift', '6', interval=0.25)
     stoptimer()
     global timer
     timer = count_down('Scene: Triple View (')
@@ -174,8 +174,8 @@ def scenerotation(q):
     timeralive()
     scene5()
     timeralive()
-    scene6()
-    timeralive()
+#    scene6()
+#    timeralive()
 
 
 apexcube = {
